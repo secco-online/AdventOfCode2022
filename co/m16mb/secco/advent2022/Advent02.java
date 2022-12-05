@@ -1,11 +1,10 @@
 package co.m16mb.secco.advent2022;
 
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 public class Advent02 {
 
@@ -14,18 +13,11 @@ public class Advent02 {
 	public static void main(String[] args) throws IOException {
 
 		// reading the input file
-		CSVReader reader = new CSVReader(new FileReader(filenamePath), ' ');
-		ArrayList<String[]> inputArray = new ArrayList<String[]>();
-		String[] nextLine;
-		while ((nextLine = reader.readNext()) != null) {
-			inputArray.add(nextLine);
-		}
-		reader.close();
-		System.out.println("Rows in file: " + inputArray.size());
+		ArrayList<String> inputArray = readFileToArray(filenamePath);
 
 		// solving the first part of the puzzle
 		{
-			Iterator<String[]> it = inputArray.iterator();
+			Iterator<String> it = inputArray.iterator();
 
 			// A for Rock, B for Paper, and C for Scissors
 			// in response: X for Rock, Y for Paper, and Z for Scissors
@@ -43,7 +35,7 @@ public class Advent02 {
 			int myPointsResult = 0;
 
 			while (it.hasNext()) {
-				String[] obj = it.next();
+				String[] obj = it.next().split(" ");
 				if ("X".equalsIgnoreCase(obj[1]))
 					myPoints += 1;
 				else if ("Y".equalsIgnoreCase(obj[1]))
@@ -77,7 +69,7 @@ public class Advent02 {
 
 		// solving the first part of the puzzle
 		{
-			Iterator<String[]> it = inputArray.iterator();
+			Iterator<String> it = inputArray.iterator();
 
 			// A for Rock, B for Paper, and C for Scissors
 			// in response: X for Rock, Y for Paper, and Z for Scissors
@@ -99,7 +91,7 @@ public class Advent02 {
 			int myPointsTotal = 0;
 
 			while (it.hasNext()) {
-				String[] obj = it.next();
+				String[] obj = it.next().split(" ");
 
 				if ("A".equalsIgnoreCase(obj[0]) && "X".equalsIgnoreCase(obj[1]))
 					myPointsTotal += 3; // lost
@@ -116,11 +108,11 @@ public class Advent02 {
 					myPointsTotal += 6; // draw
 
 				else if ("A".equalsIgnoreCase(obj[0]) && "Z".equalsIgnoreCase(obj[1]))
-					myPointsTotal += 8; // won
+					myPointsTotal += 8; // win
 				else if ("B".equalsIgnoreCase(obj[0]) && "Z".equalsIgnoreCase(obj[1]))
-					myPointsTotal += 9; // won
+					myPointsTotal += 9; // win
 				else if ("C".equalsIgnoreCase(obj[0]) && "Z".equalsIgnoreCase(obj[1]))
-					myPointsTotal += 7; // won
+					myPointsTotal += 7; // win
 
 			}
 			System.out.println("ALSWER2: MyPointTotal: " + myPointsTotal);
@@ -129,6 +121,26 @@ public class Advent02 {
 
 		}
 
+	}
+
+	private static ArrayList<String> readFileToArray(String filename) {
+		ArrayList<String> inputArray = new ArrayList<>();
+
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(filename));
+			String line = reader.readLine();
+			while (line != null) {
+				inputArray.add(line);
+				// System.out.println(line);
+				// read next line
+				line = reader.readLine();
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Rows in file: " + inputArray.size());
+		return inputArray;
 	}
 
 }

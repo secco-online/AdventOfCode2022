@@ -1,11 +1,10 @@
 package co.m16mb.secco.advent2022;
 
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 public class Advent03 {
 
@@ -14,14 +13,7 @@ public class Advent03 {
 	public static void main(String[] args) throws IOException {
 
 		// reading the input file
-		CSVReader reader = new CSVReader(new FileReader(filenamePath), ';');
-		ArrayList<String> inputArray = new ArrayList<String>();
-		String[] nextLine;
-		while ((nextLine = reader.readNext()) != null) {
-			inputArray.add(nextLine[0]);
-		}
-		reader.close();
-		System.out.println("inputArray.size() " + inputArray.size());
+		ArrayList<String> inputArray = readFileToArray(filenamePath);
 
 		// solving the first part of the puzzle
 		Iterator<String> it = inputArray.iterator();
@@ -102,4 +94,23 @@ public class Advent03 {
 		return intValue;
 	}
 
+	private static ArrayList<String> readFileToArray(String filename) {
+		ArrayList<String> inputArray = new ArrayList<>();
+
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(filename));
+			String line = reader.readLine();
+			while (line != null) {
+				inputArray.add(line);
+				// System.out.println(line);
+				// read next line
+				line = reader.readLine();
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Rows in file: " + inputArray.size());
+		return inputArray;
+	}
 }
