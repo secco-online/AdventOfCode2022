@@ -1,20 +1,29 @@
 package co.m16mb.secco.advent2022;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Advent02 {
 
 	private static final String filenamePath = "files/Advent/file02.txt";
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		// reading the input file
-		ArrayList<String> inputArray = readFileToArray(filenamePath);
+		String input = readFileAsString(filenamePath);
 
+		System.out.println("ANSWER1: " + part1(input));
+		// TOTAL SECCO: 11475
+		// TOTAL MAC: 13565
+
+		// solving the second part of the puzzle
+		System.out.println("ALSWER2: " + part2(input));
+		// TOTAL SECCO: 16862
+		// TOTAL MAC: 12424
+
+	}
+
+	private static int part1(String input) {
 		// A for Rock, B for Paper, and C for Scissors
 		// in response: X for Rock, Y for Paper, and Z for Scissors
 		// score for the shape you selected (1 for Rock, 2 for Paper, and 3
@@ -29,9 +38,9 @@ public class Advent02 {
 		// C 6+1 0+2 3+3
 
 		int myPointsResult = 0;
-		for (Iterator<String> it = inputArray.iterator(); it.hasNext();) {
-			String[] obj = it.next().split(" ");
-			
+		for (String line : input.split("\\r?\\n")) {
+			String[] obj = line.split(" ");
+
 			if ("A".equalsIgnoreCase(obj[0]) && "X".equalsIgnoreCase(obj[1]))
 				myPointsResult += 4; // draw rock
 			else if ("B".equalsIgnoreCase(obj[0]) && "Y".equalsIgnoreCase(obj[1]))
@@ -54,12 +63,10 @@ public class Advent02 {
 				myPointsResult += 2; // lost with paper
 
 		}
+		return myPointsResult;
+	}
 
-		System.out.println("ANSWER1: " + myPointsResult);
-		// TOTAL SECCO: 11475
-		// TOTAL MAC: 13565
-
-		// solving the second part of the puzzle
+	private static int part2(String input) {
 
 		// . X .. Y .. Z
 		// A Z3+0 X1+3 Y2+6
@@ -68,8 +75,8 @@ public class Advent02 {
 
 		int myPointsTotal = 0;
 
-		for (Iterator<String> it = inputArray.iterator(); it.hasNext();) {
-			String[] obj = it.next().split(" ");
+		for (String line : input.split("\\r?\\n")) {
+			String[] obj = line.split(" ");
 
 			if ("A".equalsIgnoreCase(obj[0]) && "X".equalsIgnoreCase(obj[1]))
 				myPointsTotal += 3; // lost
@@ -93,30 +100,14 @@ public class Advent02 {
 				myPointsTotal += 7; // win
 
 		}
-		System.out.println("ALSWER2: " + myPointsTotal);
-		// TOTAL SECCO: 16862
-		// TOTAL MAC: 12424
-
+		return myPointsTotal;
 	}
 
-	private static ArrayList<String> readFileToArray(String filename) {
-		ArrayList<String> inputArray = new ArrayList<>();
-
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filename));
-			String line = reader.readLine();
-			while (line != null) {
-				inputArray.add(line);
-				// System.out.println(line);
-				// read next line
-				line = reader.readLine();
-			}
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println("Rows in file: " + inputArray.size());
-		return inputArray;
+	public static String readFileAsString(String fileName) throws Exception {
+		String data = "";
+		data = new String(Files.readAllBytes(Paths.get(fileName)));
+		System.out.println("Filesize: " + data.length());
+		return data;
 	}
 
 }

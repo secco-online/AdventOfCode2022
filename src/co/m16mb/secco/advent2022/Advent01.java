@@ -1,68 +1,52 @@
 package co.m16mb.secco.advent2022;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 
 public class Advent01 {
 
 	private static final String filenamePath = "files/Advent/file01.txt";
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		// reading the input file
-		ArrayList<String> inputArray = readFileToArray(filenamePath);
+		String fileContents = readFileAsString(filenamePath);
+
+		String[] elfs = fileContents.split("\\r?\\n\\r?\\n");
 
 		// solving the first part of the puzzle
-		ArrayList<Integer> outputArray = new ArrayList<>();
+		ArrayList<Integer> caloriesByElf = new ArrayList<>();
 
-		int elfCalories = 0;
-		for (Iterator<String> it = inputArray.iterator(); it.hasNext();) {
-			String line = it.next();
-			if ("".equals(line.trim())) {
-				outputArray.add(elfCalories);
-				elfCalories = 0;
-			} else {
-				elfCalories += Integer.parseInt(line);
+		for (String elf : elfs) {
+			int elfCalories = 0;
+			for (String snack : elf.split("\\r?\\n")) {
+				elfCalories += Integer.parseInt(snack);
 			}
+			caloriesByElf.add(elfCalories);
+
 		}
 
 		// sorting
-		Collections.sort(outputArray, Collections.reverseOrder());
+		Collections.sort(caloriesByElf, Collections.reverseOrder());
 
-		System.out.println("ANSWER1: top: " + outputArray.get(0).toString());
+		System.out.println("ANSWER1: top: " + caloriesByElf.get(0).toString());
 		// Part1 Secco: 72602
 		// Part1 Mac: 67450
 
 		// solving the second part of the puzzle
-		int topThree = outputArray.get(0) + outputArray.get(1) + outputArray.get(2);
+		int topThree = caloriesByElf.get(0) + caloriesByElf.get(1) + caloriesByElf.get(2);
 		System.out.println("ANSWER2: topThree: " + topThree);
 		// Part2 Secco: 207410
 		// Part2 Mac: 199357
 
 	}
 
-	private static ArrayList<String> readFileToArray(String filename) {
-		ArrayList<String> inputArray = new ArrayList<>();
-
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filename));
-			String line = reader.readLine();
-			while (line != null) {
-				inputArray.add(line);
-				// System.out.println(line);
-				// read next line
-				line = reader.readLine();
-			}
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println("Rows in file: " + inputArray.size());
-		return inputArray;
+	public static String readFileAsString(String fileName) throws Exception {
+		String data = "";
+		data = new String(Files.readAllBytes(Paths.get(fileName)));
+		System.out.println("Filesize: " + data.length());
+		return data;
 	}
-
 }
