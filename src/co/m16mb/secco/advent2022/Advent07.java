@@ -57,17 +57,9 @@ public class Advent07 {
 			}
 
 		}
-		/*
-		 * Directory d = map.get("_/"); for (String child : d.childDirs) { //
-		 * System.out.println("Looking for " + child); d.dirSize +=
-		 * map.get(child).dirSize; }
-		 */
+		
 		long totalSizeLessThan10000 = 0;
 		for (Map.Entry<String, Directory> entry : map.entrySet()) {
-			/*
-			 * System.out.println("Key = " + entry.getKey() + ", parent = " +
-			 * entry.getValue().parentDirName +", size = " + entry.getValue().dirSize);
-			 */
 			if (entry.getValue().dirSize <= 100000) {
 				// System.out.println("new size " +entry.getKey() +"
 				// "+entry.getValue().dirSize);
@@ -106,10 +98,6 @@ public class Advent07 {
 		long biggestDirFound = biggestDir;
 		for (Map.Entry<String, Directory> entry : map.entrySet()) {
 			long currentDirSize = entry.getValue().dirSize;
-			/*
-			 * System.out.println("Key = " + entry.getKey() + ", parent = " +
-			 * entry.getValue().parentDirName +", size = " + entry.getValue().dirSize);
-			 */
 			if (currentDirSize > spaceNeeded) {
 				// System.out.println("spaceNeeded smaller than " + currentDirSize);
 				if (currentDirSize < biggestDirFound) {
