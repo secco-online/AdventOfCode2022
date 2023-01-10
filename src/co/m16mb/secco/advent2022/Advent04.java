@@ -52,7 +52,7 @@ public class Advent04 {
 		// TOTAL MAC: 528
 
 		System.out.println("ANSWER2: sumOfSomeOverlaps " + sumOfSomeOverlaps);
-		// TOTAL SECCO: 835
+		// TOTAL SECCO: 8351
 		// TOTAL MAC: 881
 
 	}

@@ -1,57 +1,52 @@
 package co.m16mb.secco.advent2022;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Advent08 {
 
 	private static final String filenamePath = "files/Advent/file08Secco.txt";
 
-	public static void main(String[] args) throws IOException {
-		{
-		}
+	public static void main(String[] args) throws Exception {
 		// reading the input file
-		ArrayList<String> inputArray = readFileToArray(filenamePath);
+		String input = readFileAsString(filenamePath);
 
 		// stack arrays
-		int cols = inputArray.get(0).length();
-		int rows = inputArray.size();
+		int cols = input.split("\\r?\\n")[0].length();
+		int rows = input.split("\\r?\\n").length;
 
-		int[][] trees = new int[rows][cols];
-		int[][] visibility = new int[rows][cols];
+		Map<Coord, Integer> treesMap = new HashMap<>();
 
-		int iterator = 0;
-		for (Iterator<String> it = inputArray.iterator(); it.hasNext();) {
-			String line = it.next();
+		int i = 0;
+		for (String line : input.split("\\r?\\n")) {
 			for (int j = 0; j < line.length(); j++) {
-				trees[iterator][j] = Integer.valueOf(line.charAt(j) + "");
-				visibility[iterator][j] = 0;
+				treesMap.put(new Coord(i, j), Integer.valueOf(line.charAt(j) + ""));
 			}
-			iterator++;
-
+			i++;
 		}
 
-		System.out.println();
+		System.out.println("ANSWER1: " + part(treesMap, rows, cols));
+		// MAC: 1854
+		// SECCO: 1809
 
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
-				System.out.print(trees[i][j]);
-			}
-			System.out.println();
-		}
+		System.out.println("ANSWER2: " + part2(treesMap, rows, cols));
+		// MAC: 527340
+		// SECCO:479400
+	}
 
-		System.out.println();
+	private static int part(Map<Coord, Integer> treesMap, int rows, int cols) {
+
+		Map<Coord, Integer> treesVilibility = new HashMap<>();
 
 		// FROM LEFT
 		for (int i = 0; i < rows; i++) {
 			int highestFromTheLeft = -1;
 			for (int j = 0; j < cols; j++) {
-				if (highestFromTheLeft < trees[i][j]) {
-					visibility[i][j] = 1;
-					highestFromTheLeft = trees[i][j];
+				if (highestFromTheLeft < treesMap.get(new Coord(i, j))) {
+					treesVilibility.put(new Coord(i, j), 1);
+					highestFromTheLeft = treesMap.get(new Coord(i, j));
 				}
 			}
 		}
@@ -60,9 +55,9 @@ public class Advent08 {
 		for (int i = 0; i < rows; i++) {
 			int highestFromTheRight = -1;
 			for (int j = cols - 1; j >= 0; j--) {
-				if (highestFromTheRight < trees[i][j]) {
-					visibility[i][j] = 1;
-					highestFromTheRight = trees[i][j];
+				if (highestFromTheRight < treesMap.get(new Coord(i, j))) {
+					treesVilibility.put(new Coord(i, j), 1);
+					highestFromTheRight = treesMap.get(new Coord(i, j));
 				}
 			}
 		}
@@ -72,9 +67,9 @@ public class Advent08 {
 			int highestFromTheTop = -1;
 			for (int i = 0; i < rows; i++) {
 
-				if (highestFromTheTop < trees[i][j]) {
-					visibility[i][j] = 1;
-					highestFromTheTop = trees[i][j];
+				if (highestFromTheTop < treesMap.get(new Coord(i, j))) {
+					treesVilibility.put(new Coord(i, j), 1);
+					highestFromTheTop = treesMap.get(new Coord(i, j));
 				}
 			}
 		}
@@ -84,31 +79,19 @@ public class Advent08 {
 			int highestFromTheBottom = -1;
 			for (int i = rows - 1; i >= 0; i--) {
 
-				if (highestFromTheBottom < trees[i][j]) {
-					visibility[i][j] = 1;
-					highestFromTheBottom = trees[i][j];
+				if (highestFromTheBottom < treesMap.get(new Coord(i, j))) {
+					treesVilibility.put(new Coord(i, j), 1);
+					highestFromTheBottom = treesMap.get(new Coord(i, j));
 				}
 			}
 		}
 
-		int totalTreesVisible = 0;
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
-				if (visibility[i][j] == 1) {
-					totalTreesVisible++;
-				}
-				System.out.print(visibility[i][j]);
-			}
-			System.out.println();
-		}
+		return treesVilibility.size();
+	}
 
-		System.out.println("ANSWER1: " + totalTreesVisible);
-		// MAC: 1854
-		// SECCO: 1809
-
+	private static int part2(Map<Coord, Integer> treesMap, int rows, int cols) {
 		int highestVisibility = 0;
 
-		// PUZZLE 2
 		for (int i = 1; i < rows - 1; i++) {
 			for (int j = 1; j < cols - 1; j++) {
 
@@ -117,46 +100,46 @@ public class Advent08 {
 				int treesVisibleToTop = 0;
 				int treesVisibleToBottom = 0;
 
-				boolean firtsEqualToLeft = true;
+				boolean firstEqualToLeft = true;
 				for (int k = j - 1; k >= 0; k--) {
-					if (trees[i][k] < trees[i][j] && firtsEqualToLeft) {
+					if (treesMap.get(new Coord(i, k)) < treesMap.get(new Coord(i, j)) && firstEqualToLeft) {
 						treesVisibleToLeft++;
-					} else if (trees[i][k] >= trees[i][j] && firtsEqualToLeft && firtsEqualToLeft) {
+					} else if (treesMap.get(new Coord(i, k)) >= treesMap.get(new Coord(i, j)) && firstEqualToLeft
+							&& firstEqualToLeft) {
 						treesVisibleToLeft++;
-						firtsEqualToLeft = false;
+						firstEqualToLeft = false;
 					}
 				}
 
-				boolean firtsEqualToRight = true;
+				boolean firstEqualToRight = true;
 				for (int k = j + 1; k < cols; k++) {
-					if (trees[i][k] < trees[i][j] && firtsEqualToRight) {
+					if (treesMap.get(new Coord(i, k)) < treesMap.get(new Coord(i, j)) && firstEqualToRight) {
 						treesVisibleToRight++;
-						// System.out.println("i " + i + " j " + j+ " trees[i][j] " +trees[i][j]+ " tree
-						// to right " +trees[i][k]+" smaller");
-					} else if (trees[i][k] >= trees[i][j] && firtsEqualToRight) {
+					} else if (treesMap.get(new Coord(i, k)) >= treesMap.get(new Coord(i, j)) && firstEqualToRight) {
 						treesVisibleToRight++;
-						firtsEqualToRight = false;
+						firstEqualToRight = false;
 					}
 
 				}
 
-				boolean firtsEqualToTheTop = true;
+				boolean firstEqualToTheTop = true;
 				for (int k = i - 1; k >= 0; k--) {
-					if (trees[k][j] < trees[i][j] && firtsEqualToTheTop) {
+					if (treesMap.get(new Coord(k, j)) < treesMap.get(new Coord(i, j)) && firstEqualToTheTop) {
 						treesVisibleToTop++;
-					} else if (trees[k][j] >= trees[i][j] && firtsEqualToTheTop) {
+					} else if (treesMap.get(new Coord(k, j)) >= treesMap.get(new Coord(i, j)) && firstEqualToTheTop) {
 						treesVisibleToTop++;
-						firtsEqualToTheTop = false;
+						firstEqualToTheTop = false;
 					}
 				}
 
-				boolean firtsEqualToTheBottom = true;
+				boolean firstEqualToTheBottom = true;
 				for (int k = i + 1; k < rows; k++) {
-					if (trees[k][j] < trees[i][j] && firtsEqualToTheBottom) {
+					if (treesMap.get(new Coord(k, j)) < treesMap.get(new Coord(i, j)) && firstEqualToTheBottom) {
 						treesVisibleToBottom++;
-					} else if (trees[k][j] >= trees[i][j] && firtsEqualToTheBottom) {
+					} else if (treesMap.get(new Coord(k, j)) >= treesMap.get(new Coord(i, j))
+							&& firstEqualToTheBottom) {
 						treesVisibleToBottom++;
-						firtsEqualToTheBottom = false;
+						firstEqualToTheBottom = false;
 					}
 				}
 
@@ -164,47 +147,23 @@ public class Advent08 {
 						* treesVisibleToBottom;
 
 				if (highestVisibility < currentVisibility) {
-
 					highestVisibility = currentVisibility;
-					/*
-					 * System.out.println("tree hight " + trees[i][j]);
-					 * System.out.println("treesVisibleToTop " + treesVisibleToTop);
-					 * System.out.println("treesVisibleToLeft " + treesVisibleToLeft);
-					 * System.out.println("treesVisibleToRight " + treesVisibleToRight);
-					 * System.out.println("treesVisibleToBottom " + treesVisibleToBottom);
-					 * System.out.println("coordinatesCols: " + coordinatesCols);
-					 * System.out.println("coordinatesRows: " + coordinatesRows);
-					 * System.out.println("highestVisibility: " + highestVisibility);
-					 */
 				}
 
 			}
 
 		}
 
-		System.out.println("ANSWER2: " + highestVisibility);
-		// MAC: 527340
-		// SECCO:479400
+		return highestVisibility;
 	}
 
-	private static ArrayList<String> readFileToArray(String filename) {
-		ArrayList<String> inputArray = new ArrayList<>();
+	private static final record Coord(int x, int y) {
+	}
 
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filename));
-			String line = reader.readLine();
-			while (line != null) {
-				inputArray.add(line);
-				// System.out.println(line);
-				// read next line
-				line = reader.readLine();
-			}
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		// System.out.println("Rows in file: " + inputArray.size());
-		return inputArray;
+	private static String readFileAsString(String fileName) throws Exception {
+		String data = "";
+		data = new String(Files.readAllBytes(Paths.get(fileName)));
+		System.out.println("Filesize: " + data.length());
+		return data;
 	}
 }
