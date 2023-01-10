@@ -1,24 +1,20 @@
 package co.m16mb.secco.advent2022;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Advent04 {
 
-	private static final String filenamePath = "files/Advent/file04.txt";
+	private static final String filenamePath = "files/Advent/file04Secco.txt";
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
-		// reading the input file
-		ArrayList<String> inputArray = readFileToArray(filenamePath);
+		String input = readFileAsString(filenamePath);
 
-		int sumOfFullOverlaps = 0;
-		int sumOfSomeOverlaps = 0;
-		for (Iterator<String> it = inputArray.iterator(); it.hasNext();) {
-			String[] oneLine = it.next().split(",");
+		int part1SumOfFullOverlaps = 0;
+		int part2SumOfSomeOverlaps = 0;
+		for (String string : input.split("\\r?\\n")) {
+			String[] oneLine = string.split(",");
 			String[] assignmentArray1 = oneLine[0].split("-");
 			int beg1 = Integer.parseInt(assignmentArray1[0]);
 			int end1 = Integer.parseInt(assignmentArray1[1]);
@@ -28,52 +24,31 @@ public class Advent04 {
 
 			// solving the first part of the puzzle
 			if (beg1 <= beg2 && end1 >= end2) {
-				sumOfFullOverlaps++;
-				// System.out.println("Full Overlap 1>=2:");
+				part1SumOfFullOverlaps++;
 			} else if (beg1 >= beg2 && end1 <= end2) {
-				sumOfFullOverlaps++;
-				// System.out.println("Full Overlap 2>=1:");
-			} else {
-				// System.out.println("No Full Overlap  : ");
+				part1SumOfFullOverlaps++;
 			}
 
 			// solving the second part of the puzzle
-			if (beg1 > end2 || end1 < beg2) {
-				// System.out.println("No Overlap  : ");
-			} else {
-				sumOfSomeOverlaps++;
-				// System.out.println("Some Overlap: ");
+			if (beg1 <= end2 && end1 >= beg2) {
+				part2SumOfSomeOverlaps++;
 			}
-
 		}
 
-		System.out.println("ANSWER1: sumOfFullOverlaps " + sumOfFullOverlaps);
+		System.out.println("ANSWER1: " + part1SumOfFullOverlaps);
 		// TOTAL SECCO: 462
 		// TOTAL MAC: 528
 
-		System.out.println("ANSWER2: sumOfSomeOverlaps " + sumOfSomeOverlaps);
-		// TOTAL SECCO: 8351
+		System.out.println("ANSWER2: " + part2SumOfSomeOverlaps);
+		// TOTAL SECCO: 835
 		// TOTAL MAC: 881
 
 	}
 
-	private static ArrayList<String> readFileToArray(String filename) {
-		ArrayList<String> inputArray = new ArrayList<String>();
-
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filename));
-			String line = reader.readLine();
-			while (line != null) {
-				inputArray.add(line);
-				// System.out.println(line);
-				// read next line
-				line = reader.readLine();
-			}
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println("Rows in file: " + inputArray.size());
-		return inputArray;
+	public static String readFileAsString(String fileName) throws Exception {
+		String data = "";
+		data = new String(Files.readAllBytes(Paths.get(fileName)));
+		System.out.println("Filesize: " + data.length());
+		return data;
 	}
 }

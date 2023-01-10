@@ -1,27 +1,73 @@
 package co.m16mb.secco.advent2022;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class Advent07 {
 
 	private static final String filenamePath = "files/Advent/file07Secco.txt";
-	private static Map<String, Directory> map = new HashMap<>();
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
-		// reading the input file
-		ArrayList<String> inputArray = readFileToArray(filenamePath);
+		String input = readFileAsString(filenamePath);
 
-		// solving puzzle 1
+		Map<String, Directory> map = readDirectories(input);
+
+		System.out.println("ANSWER1 " + part1(map));
+		// SECCO: 1989474
+		// MAC: 1297683
+
+		System.out.println("ANSWER2 " + part2(map));
+		// SECCO: 1111607
+		// MAC: 5756764
+	}
+
+	private static long part1(Map<String, Directory> map) {
+		long totalSizeLessThan10000 = 0;
+		for (Map.Entry<String, Directory> entry : map.entrySet()) {
+			if (entry.getValue().dirSize <= 100000) {
+				totalSizeLessThan10000 += entry.getValue().dirSize;
+			}
+		}
+		return totalSizeLessThan10000;
+	}
+
+	private static long part2(Map<String, Directory> map) {
+
+		long biggestDirOnFileSystem = 0;
+		for (Map.Entry<String, Directory> entry : map.entrySet()) {
+			Directory d = entry.getValue();
+			if (d.dirSize > biggestDirOnFileSystem) {
+				biggestDirOnFileSystem = d.dirSize;
+				// System.out.println(d.dirName + " " + d.dirSize);
+			}
+		}
+
+		long spaceNeeded = -(70000000 - biggestDirOnFileSystem - 30000000);
+		System.out.println("biggestDirOnFileSystem " + biggestDirOnFileSystem + " | space available "
+				+ (70000000 - biggestDirOnFileSystem + " | spaceNeeded " + spaceNeeded));
+
+		// smallest of all that are bigger than space needed
+		long biggestDirToBeDeleted = biggestDirOnFileSystem;
+		for (Map.Entry<String, Directory> entry : map.entrySet()) {
+			long currentDirSize = entry.getValue().dirSize;
+			if (currentDirSize > spaceNeeded) {
+				if (currentDirSize < biggestDirToBeDeleted) {
+					biggestDirToBeDeleted = currentDirSize;
+				}
+			}
+		}
+
+		return biggestDirToBeDeleted;
+	}
+
+	private static Map<String, Directory> readDirectories(String input) {
+		Map<String, Directory> map = new HashMap<>();
 		String currentDir = "";
-		for (Iterator<String> it = inputArray.iterator(); it.hasNext();) {
-			String line = it.next();
+		for (String line : input.split("\\r?\\n")) {
 			String[] array = line.split(" ");
 			// System.out.println("line: " + line);
 			if (line.startsWith("$ cd")) {
@@ -57,86 +103,10 @@ public class Advent07 {
 			}
 
 		}
-		
-		long totalSizeLessThan10000 = 0;
-		for (Map.Entry<String, Directory> entry : map.entrySet()) {
-			if (entry.getValue().dirSize <= 100000) {
-				// System.out.println("new size " +entry.getKey() +"
-				// "+entry.getValue().dirSize);
-
-				totalSizeLessThan10000 += entry.getValue().dirSize;
-				// System.out.println("totalSizeLessThan10000 " +totalSizeLessThan10000);
-			}
-		}
-
-		System.out.println("ANSWER1 " + totalSizeLessThan10000);
-
-		// SECCO: 1989474
-		// MAC: 1297683
-
-		// solving puzzle 2
-		
-		long biggestDir = 0;
-		for (Map.Entry<String, Directory> entry : map.entrySet()) {
-			/*
-			 * System.out.println("Key = " + entry.getKey() + ", parent = " +
-			 * entry.getValue().parentDirName +", size = " + entry.getValue().dirSize);
-			 */
-			if (entry.getValue().dirSize > biggestDir) {
-				// System.out.println("new size " + entry.getKey() + " " +
-				// entry.getValue().dirSize);
-				biggestDir = entry.getValue().dirSize;
-				// System.out.println("totalSizeLessThan10000 " +totalSizeLessThan10000);
-			}
-		}
-
-		System.out.println("biggestDir " + biggestDir);
-		System.out.println("space available " + (70000000 - biggestDir));
-		long spaceNeeded = -(70000000 - biggestDir - 30000000);
-		System.out.println("spaceNeeded " + spaceNeeded);
-
-		long biggestDirFound = biggestDir;
-		for (Map.Entry<String, Directory> entry : map.entrySet()) {
-			long currentDirSize = entry.getValue().dirSize;
-			if (currentDirSize > spaceNeeded) {
-				// System.out.println("spaceNeeded smaller than " + currentDirSize);
-				if (currentDirSize < biggestDirFound) {
-
-					biggestDirFound = currentDirSize;
-
-				}
-				// System.out.println("totalSizeLessThan10000 " +totalSizeLessThan10000);
-			}
-		}
-
-		System.out.println("ANSWER2 smallest of all that are bigger than space needed " + biggestDirFound);
-		// SECCO: 1111607
-		// MAC: 5756764
-
+		return map;
 	}
 
-	private static ArrayList<String> readFileToArray(String filename) {
-		ArrayList<String> inputArray = new ArrayList<>();
-
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filename));
-			String line = reader.readLine();
-			while (line != null) {
-				inputArray.add(line);
-				// System.out.println(line);
-				// read next line
-				line = reader.readLine();
-			}
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		System.out.println("Rows in file: " + inputArray.size());
-		return inputArray;
-	}
-
-	static class Directory {
+	private static class Directory {
 		long dirSize = 0;
 		String parentDirName = "";
 		String dirName = "";
@@ -146,9 +116,13 @@ public class Advent07 {
 			this.dirName = parentName + "_" + name;
 			this.parentDirName = parentName;
 		}
-
-		public long compareTo(Directory o) {
-			return o.dirSize - this.dirSize;
-		}
 	}
+
+	public static String readFileAsString(String fileName) throws Exception {
+		String data = "";
+		data = new String(Files.readAllBytes(Paths.get(fileName)));
+		System.out.println("Filesize: " + data.length());
+		return data;
+	}
+
 }

@@ -1,127 +1,79 @@
 package co.m16mb.secco.advent2022;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Advent10 {
 
 	private static final String filenamePath = "files/Advent/file10Secco.txt";
 
-	public static void main(String[] args) throws IOException {
+	private static final int ROWS = 6;
+	private static final int COLS = 40;
 
-		// reading the input file
-		ArrayList<String[]> inputArray = readFileToArray(filenamePath);
+	public static void main(String[] args) throws Exception {
 
-		int registerX = 1;
-		// "addx V" //2 cycles
-		// "noop" //1 cycle
-		int cyclesDone = 0;
+		String input = readFileAsString(filenamePath);
 
-		// solving puzzle 1
-		int signalStrength = 0;
+		Map<Integer, Integer> map = calculateDuringCycleValues(input);
 
-		int ROWS = 6;
-		String[] screen = new String[ROWS];
-		for (int r = 0; r < ROWS; r++) {
-			screen[r] = "";
-		}
-		for (Iterator<String[]> it = inputArray.iterator(); it.hasNext();) {
-			String[] line = it.next();
-
-			int valueToAdd = 0;
-
-			int screenRow = cyclesDone / 40;
-			int screenCol = cyclesDone % 40;
-			System.out.println(" cycles done " + cyclesDone + " registerX " + registerX);
-
-			if ("noop".equals(line[0])) {
-				if (registerX - 1 <= screenCol && registerX + 1 >= screenCol) {
-					screen[screenRow] += "#";
-				} else
-					screen[screenRow] += ".";
-
-				cyclesDone++;
-
-			} else if ("addx".equals(line[0])) {
-				if (registerX - 1 <= screenCol && registerX + 1 >= screenCol) {
-					screen[screenRow] += "#";
-				} else
-					screen[screenRow] += ".";
-
-				int overflow = 0;
-				if (screen[screenRow].length() == 40) {
-					overflow++;
-				}
-
-				if (registerX - 1 <= screenCol + 1 && registerX + 1 >= screenCol + 1) {
-					screen[screenRow + overflow] += "#";
-				} else
-					screen[screenRow + overflow] += ".";
-
-				valueToAdd = Integer.parseInt(line[1]);
-				cyclesDone += 2;
-
-			}
-
-			int modulo = (cyclesDone + 20) % 40;
-			if (modulo == 0) {// || (modulo==1 && "addx".equals(line[0]))
-				// System.out.println(check +" modulo " + modulo + " cycles done " + cyclesDone
-				// + " registerX " +registerX);
-				int thisSignalStrength = ((cyclesDone - modulo) * registerX);
-				// System.out.println(check +" thisSignalStrength " + thisSignalStrength);
-				signalStrength += thisSignalStrength;
-			} else if (modulo == 1 && "addx".equals(line[0])) {
-				// System.out.println(check +" modulo " + modulo + " cycles done " + cyclesDone
-				// + " registerX " + (registerX));
-				int thisSignalStrength = ((cyclesDone - modulo) * (registerX));
-				// System.out.println(check +" thisSignalStrength " + thisSignalStrength);
-				signalStrength += thisSignalStrength;
-			}
-			registerX += valueToAdd;
-
-		}
-
-		System.out.println("registerX " + registerX);
-		System.out.println("cyclesDone " + cyclesDone);
-
-		System.out.println("ANSWER1 " + signalStrength);
-
+		System.out.println("ANSWER1 " + part1(map));
 		// SECCO: 12520
 		// MAC: 13440
 
-		// solving puzzle 2
-
-		for (int r = 0; r < ROWS; r++) {
-			System.out.println(screen[r]);
-		}
-
+		System.out.println("ANSWER2 " + part2(map));
 		// SECCO: EHPZPJGL
 		// MAC: PBZGRAZA
 
 	}
 
-	private static ArrayList<String[]> readFileToArray(String filename) {
-		ArrayList<String[]> inputArray = new ArrayList<>();
+	private static int part1(Map<Integer, Integer> map) {
+		int signalStrength = 0;
+		for (int i = 20; i <= 220; i += COLS) {
+			signalStrength += i * map.get(i);
+		}
+		return signalStrength;
+	}
 
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filename));
-			String line = reader.readLine();
-			while (line != null) {
-				inputArray.add(line.split(" "));
-				// System.out.println(line);
-				// read next line
-				line = reader.readLine();
+	private static String part2(Map<Integer, Integer> map) {
+		int cycle = 1;
+		String stringToShow = "\n";
+		
+		for (int x = 0; x < ROWS; x++) {
+			for (int y = 0; y < COLS; y++) {
+				
+				int registerX = map.get(cycle);		
+				stringToShow += Math.abs(registerX - y) <= 1 ? "#" : ".";
+				cycle++;
 			}
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+			stringToShow += "\n";
 		}
 
-		System.out.println("Rows in file: " + inputArray.size());
-		return inputArray;
+		return stringToShow;
+	}
+
+	private static Map<Integer, Integer> calculateDuringCycleValues(String input) {
+		Map<Integer, Integer> duringCycle = new HashMap<Integer, Integer>();
+		var registerX = 1;
+		var cycle = 1;
+		for (var line : input.lines().toList()) {
+			if (line.equals("noop")) {
+				duringCycle.put(cycle++, registerX);
+			} else {
+				duringCycle.put(cycle++, registerX);
+				duringCycle.put(cycle++, registerX);
+				registerX += Integer.parseInt(line.split(" ")[1]);
+			}
+		}
+		return duringCycle;
+	}
+
+	public static String readFileAsString(String fileName) throws Exception {
+		String data = "";
+		data = new String(Files.readAllBytes(Paths.get(fileName)));
+		System.out.println("Filesize: " + data.length());
+		return data;
 	}
 
 }
